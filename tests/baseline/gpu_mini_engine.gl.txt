@@ -1,0 +1,4 @@
+cena: 50 triangulos, 0 com winding errado
+luminancia p05=6 p50=121 p95=167 (media 94.4)
+contraste p95-p05=161 | fronteiras nitidas 0.45%
+SEM contraste util: nao ha sombra visivel

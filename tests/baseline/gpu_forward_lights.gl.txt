@@ -1,0 +1,5 @@
+cena: 50 triangulos, 0 com winding errado
+luzes na cena: 9 | seleccionadas no total: 20 (max 4 por objeto)
+luminancia p05=9 p50=158 p95=217 (media 125.5)
+contraste p95-p05=208 | fronteiras nitidas 0.67%
+zonas iluminadas E zonas em sombra, com fronteiras definidas

@@ -1,0 +1,4 @@
+cena: 50 triangulos, 0 com winding errado
+luminancia p05=82 p50=204 p95=204 (media 162.9)
+contraste p95-p05=122 | fronteiras nitidas 0.92%
+zonas iluminadas E zonas em sombra, com fronteiras definidas

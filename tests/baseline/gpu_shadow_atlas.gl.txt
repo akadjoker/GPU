@@ -1,0 +1,5 @@
+cena: 50 triangulos, 0 com winding errado
+passes: 1 de sombras (11 tiles) + 1 forward (5 objetos)
+luminancia p05=15 p50=189 p95=230 (media 132.9)
+contraste p95-p05=215 | fronteiras nitidas 0.57%
+zonas iluminadas E zonas em sombra, com fronteiras definidas

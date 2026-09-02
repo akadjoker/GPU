@@ -1,0 +1,12 @@
+build-demos/
+build-web/
+gpu/build/
+*.ppm
+.claude/
+build-check/
+build-docs/
+documentation/xml/
+docs/
+build-vulkan-phase1/
+CMakeFiles/
+gpu-samples/

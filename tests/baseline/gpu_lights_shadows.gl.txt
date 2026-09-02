@@ -1,0 +1,7 @@
+cena: 50 triangulos, 0 com winding errado
+luzes na cena: 10 (1 sol + 3 spot + 6 point)
+atlas: 2048x2048 de 2048x2048 | escala 1.000 | tiles desenhados: 43
+luzes escolhidas: 30 no total, 30 com sombra (max 6 por objeto, 5 objetos)
+luminancia p05=9 p50=152 p95=168 (media 99.8)
+contraste p95-p05=159 | fronteiras nitidas 0.54%
+zonas iluminadas E zonas em sombra, com fronteiras definidas

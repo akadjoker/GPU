@@ -1,0 +1,134 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x86_64
+            archive: gpu-linux-x86_64.tar.gz
+          - os: windows-latest
+            name: windows-x86_64
+            archive: gpu-windows-x86_64.zip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgles2-mesa-dev libvulkan-dev
+
+      - name: Install Vulkan SDK through vcpkg
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $vcpkgRoot = if ($env:VCPKG_INSTALLATION_ROOT) {
+            $env:VCPKG_INSTALLATION_ROOT
+          } else {
+            'C:\vcpkg'
+          }
+          & "$vcpkgRoot\vcpkg.exe" install angle:x64-windows vulkan:x64-windows
+          "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
+          "Vulkan_ROOT=$vcpkgRoot\installed\x64-windows" >> $env:GITHUB_ENV
+
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S gpu -B build -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DGPU_BUILD_OPENGL=ON \
+            -DGPU_BUILD_OPENGLES=ON \
+            -DGPU_BUILD_VULKAN=ON \
+            -DGPU_BUILD_STATIC_LIBRARIES=ON \
+            -DGPU_BUILD_SHARED_LIBRARIES=ON
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake -S gpu -B build "-DVulkan_ROOT=$env:Vulkan_ROOT" `
+            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake" `
+            -DBUILD_TESTING=OFF `
+            -DGPU_BUILD_OPENGL=ON `
+            -DGPU_BUILD_OPENGLES=ON `
+            -DGPU_BUILD_VULKAN=ON `
+            -DGPU_BUILD_STATIC_LIBRARIES=ON `
+            -DGPU_BUILD_SHARED_LIBRARIES=ON
+
+      - name: Build libraries
+        run: cmake --build build --config Release --parallel
+
+      - name: Install package
+        run: cmake --install build --config Release --prefix staging
+
+      - name: Bundle OpenGL ES runtime (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Copy-Item "$env:VCPKG_ROOT\installed\x64-windows\bin\*.dll" `
+            -Destination staging\bin -Force
+          Copy-Item "$env:VCPKG_ROOT\installed\x64-windows\lib\libGLESv2.lib" `
+            -Destination staging\lib -Force
+          New-Item -ItemType Directory -Force staging\share\licenses\ANGLE
+          Copy-Item "$env:VCPKG_ROOT\installed\x64-windows\share\angle\copyright" `
+            -Destination staging\share\licenses\ANGLE\LICENSE -Force
+
+      - name: Create Linux archive
+        if: runner.os == 'Linux'
+        run: tar -czf ${{ matrix.archive }} -C staging .
+
+      - name: Create Windows archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path staging\* -DestinationPath ${{ matrix.archive }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gpu-${{ matrix.name }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create release and upload archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" \
+              dist/gpu-linux-x86_64.tar.gz \
+              dist/gpu-windows-x86_64.zip \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              dist/gpu-linux-x86_64.tar.gz \
+              dist/gpu-windows-x86_64.zip \
+              --generate-notes
+          fi

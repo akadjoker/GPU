@@ -1,0 +1,42 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(@GPU_PACKAGE_HAS_VULKAN@)
+    find_dependency(Vulkan)
+endif()
+
+set(GPU_NEEDS_GLES_RUNTIME FALSE)
+if(NOT GPU_FIND_COMPONENTS)
+    set(GPU_NEEDS_GLES_RUNTIME @GPU_PACKAGE_HAS_OPENGLES@)
+else()
+    list(FIND GPU_FIND_COMPONENTS gles_static GPU_GLES_STATIC_COMPONENT_INDEX)
+    if(NOT GPU_GLES_STATIC_COMPONENT_INDEX EQUAL -1)
+        set(GPU_NEEDS_GLES_RUNTIME TRUE)
+    endif()
+endif()
+
+if(GPU_NEEDS_GLES_RUNTIME)
+    find_library(GPU_GLESV2_LIBRARY NAMES GLESv2 libGLESv2
+        HINTS "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@")
+    if(NOT GPU_GLESV2_LIBRARY)
+        message(FATAL_ERROR
+            "GPU::gles_static requires a GLESv2 library. Install a GLES2 "
+            "development package or use GPU::gles_shared.")
+    endif()
+    add_library(GPU::gles_runtime_system UNKNOWN IMPORTED)
+    set_target_properties(GPU::gles_runtime_system PROPERTIES
+        IMPORTED_LOCATION "${GPU_GLESV2_LIBRARY}")
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/GPUTargets.cmake")
+
+foreach(component IN LISTS GPU_FIND_COMPONENTS)
+    if(TARGET "GPU::${component}")
+        set("GPU_${component}_FOUND" TRUE)
+    else()
+        set("GPU_${component}_FOUND" FALSE)
+    endif()
+endforeach()
+
+check_required_components(GPU)

@@ -1,0 +1,98 @@
+name: gpu
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Documentation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen python3
+      - name: Build Markdown API documentation
+        run: |
+          cmake -S gpu -B build-docs -DGPU_BUILD_DOCS=ON \
+            -DGPU_BUILD_OPENGL=OFF -DGPU_BUILD_OPENGLES=OFF \
+            -DGPU_BUILD_VULKAN=OFF
+          cmake --build build-docs --target docs
+          test -f build-docs/docs/generated/api-reference.md
+          test -f build-docs/docs/generated/api-reference.rst
+          test -f build-docs/docs/html/index.html
+
+  # Sem GL nenhum: garante que o core compila e passa sem OpenGL, SDL ou
+  # APIs nativas. E o criterio de conclusao da Fase 8 do PLAN.md.
+  core-sem-gl:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar
+        run: |
+          CC=${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX=${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+          cmake -S gpu -B build -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX \
+            -DGPU_BUILD_OPENGL=OFF -DGPU_BUILD_OPENGLES=OFF \
+            -DGPU_BUILD_NULL=ON
+      - run: cmake --build build -j$(nproc)
+      - run: ctest --test-dir build --output-on-failure
+
+  # Contexto GL/ES real via Mesa llvmpipe debaixo do Xvfb.
+  contexto-real:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizers: [OFF, ON]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev \
+            libsdl2-dev xvfb mesa-utils libgl1-mesa-dri
+      - name: Configurar
+        run: |
+          cmake -S gpu -B build -DCMAKE_BUILD_TYPE=Debug \
+            -DGPU_BUILD_OPENGL=ON -DGPU_BUILD_OPENGLES=ON \
+            -DGPU_BUILD_NULL=ON -DGPU_BUILD_DEMOS=ON \
+            -DGPU_BUILD_OPENGL_TESTS=ON -DGPU_BUILD_OPENGLES_TESTS=ON \
+            -DGPU_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - run: cmake --build build -j$(nproc)
+      - name: Testes (inclui RenderPathProbe nos dois backends)
+        run: xvfb-run -a ctest --test-dir build --output-on-failure
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
+  # WebGL2: so precisa de compilar. E o alvo que apanha o que o desktop deixa
+  # passar (ES 3.1/3.2, KHR_debug, glMapBufferRange).
+  web-wasm32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+      - name: Compilar o demo para wasm32
+        run: EMSDK=$EMSDK ./demos/build-web.sh
+      - name: O bundle existe e tem tamanho util
+        run: |
+          test -f build-web/demo.wasm
+          test -f build-web/demo.js
+          size=$(stat -c%s build-web/demo.wasm)
+          echo "demo.wasm: $size bytes"
+          test "$size" -gt 100000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-web
+          path: build-web/

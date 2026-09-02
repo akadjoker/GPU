@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['samplecount_0',['sampleCount',['../structgpu_1_1TextureDesc.html#a8318eb2b3df88ca3d0331926c8494c1b',1,'gpu::TextureDesc']]],
+  ['samplerbordercolor_1',['samplerBorderColor',['../structgpu_1_1GPUCapabilities.html#a62dc7b989617bd05ead8d01ac81711e3',1,'gpu::GPUCapabilities']]],
+  ['scissorenabled_2',['scissorEnabled',['../structgpu_1_1RasterState.html#adfafd145c28fb7bb9f17265949bf688e',1,'gpu::RasterState']]],
+  ['severity_3',['severity',['../structgpu_1_1GPUError.html#a388716c907e04333a1c46e78ebba4c37',1,'gpu::GPUError']]],
+  ['shaderlocation_4',['shaderLocation',['../structgpu_1_1VertexAttribute.html#ab9bf3236cce09870a1e2794ef97230e9',1,'gpu::VertexAttribute']]],
+  ['size_5',['size',['../structgpu_1_1DataView.html#a4a4b3dc5199941db164e0a511b5138df',1,'gpu::DataView::size'],['../structgpu_1_1MutableDataView.html#a6d1505335a7e72409297c170e8865116',1,'gpu::MutableDataView::size'],['../structgpu_1_1BufferDesc.html#a0135f2bc901239145e28367481d50e7e',1,'gpu::BufferDesc::size']]],
+  ['slot_6',['slot',['../structgpu_1_1ShaderResource.html#ab86eaff0e74dc9f6510568a8d5421ea2',1,'gpu::ShaderResource']]],
+  ['source_7',['source',['../structgpu_1_1ShaderDesc.html#ae78696d5cf3b3f806635fe81d9872076',1,'gpu::ShaderDesc']]],
+  ['sourcefactor_8',['sourceFactor',['../structgpu_1_1BlendComponent.html#aa97cfbca954948d1bf468412d7bbd29d',1,'gpu::BlendComponent']]],
+  ['stencilback_9',['stencilBack',['../structgpu_1_1DepthStencilState.html#a949ff99d9caea915566d760c292dbb01',1,'gpu::DepthStencilState']]],
+  ['stencilenabled_10',['stencilEnabled',['../structgpu_1_1DepthStencilState.html#a925d5fd4b320ba8b8cebd4b613ef6508',1,'gpu::DepthStencilState']]],
+  ['stencilfront_11',['stencilFront',['../structgpu_1_1DepthStencilState.html#ab782fa7c0e3ea80a4c45df78c840ce2c',1,'gpu::DepthStencilState']]],
+  ['stencilloadop_12',['stencilLoadOp',['../structgpu_1_1RenderPassDepthStencilAttachment.html#a187fb34464ea05d15315ec31dee6aab1',1,'gpu::RenderPassDepthStencilAttachment']]],
+  ['stencilreadmask_13',['stencilReadMask',['../structgpu_1_1DepthStencilState.html#a543e0d3910f0c06977ed8f1fa8e88893',1,'gpu::DepthStencilState']]],
+  ['stencilstoreop_14',['stencilStoreOp',['../structgpu_1_1RenderPassDepthStencilAttachment.html#ab98595cb02403ca0de2c926a019c0cc2',1,'gpu::RenderPassDepthStencilAttachment']]],
+  ['stencilwritemask_15',['stencilWriteMask',['../structgpu_1_1DepthStencilState.html#aaffe1a75649e95383e258091c4648a1a',1,'gpu::DepthStencilState']]],
+  ['stepmode_16',['stepMode',['../structgpu_1_1VertexBufferLayout.html#a76d2d4ebcbe903c5c877c22693ad0c48',1,'gpu::VertexBufferLayout']]],
+  ['storagebufferoffsetalignment_17',['storageBufferOffsetAlignment',['../structgpu_1_1GPUCapabilities.html#a6ce7394ef1a8a06a05d6d44316345bc5',1,'gpu::GPUCapabilities']]],
+  ['storagebuffers_18',['storageBuffers',['../structgpu_1_1GPUCapabilities.html#a7ca12cc7f811ec2f3b9ec19a73d8fa21',1,'gpu::GPUCapabilities']]],
+  ['storagetextures_19',['storageTextures',['../structgpu_1_1GPUCapabilities.html#acace48ef3d1ef15f7d6950cbbd22c45a',1,'gpu::GPUCapabilities']]],
+  ['storeop_20',['storeOp',['../structgpu_1_1RenderPassColorAttachment.html#a1fc7cdbe4798e8a5a3fdb15949d1c9b5',1,'gpu::RenderPassColorAttachment']]],
+  ['stride_21',['stride',['../structgpu_1_1VertexBufferLayout.html#a163fc7a0f8f33cf3483220505f8d7c8c',1,'gpu::VertexBufferLayout']]],
+  ['surface_22',['surface',['../structgpu_1_1DeviceDesc.html#ad023dc1d9509e0da1d9c4f61f86f9462',1,'gpu::DeviceDesc::surface'],['../structgpu_1_1ColorTargetState.html#aea990ae066a69272b37caa9fe4a16e1a',1,'gpu::ColorTargetState::surface'],['../structgpu_1_1RenderPassColorAttachment.html#ad2bc866caff952be41cf97f11bcfe1c6',1,'gpu::RenderPassColorAttachment::surface']]]
+];
