@@ -214,9 +214,17 @@ if(GPU_BUILD_OPENGL)
     target_compile_definitions(gpu PRIVATE GPU_HAS_OPENGL=1)
 endif()
 if(GPU_BUILD_OPENGLES)
-    find_library(GPU_GLESV2_LIBRARY GLESv2 REQUIRED)
     target_compile_definitions(gpu PRIVATE GPU_HAS_OPENGLES=1)
-    target_link_libraries(gpu PUBLIC ${GPU_GLESV2_LIBRARY})
+    if(EMSCRIPTEN)
+        # WebGL2 is ES 3.0 only, and none of the optional GLES features
+        # exist there (same set as demos/build-web.sh).
+        target_compile_definitions(gpu PRIVATE
+            GPU_GLES_HAS_ES31=0 GPU_GLES_HAS_ES32=0
+            GPU_GLES_HAS_KHR_DEBUG=0 GPU_GLES_HAS_BUFFER_MAP=0)
+    else()
+        find_library(GPU_GLESV2_LIBRARY GLESv2 REQUIRED)
+        target_link_libraries(gpu PUBLIC ${GPU_GLESV2_LIBRARY})
+    endif()
 
     # Keep the GLES system library out of the installed static target's
     # absolute link interface. The package config recreates this target on the
@@ -263,7 +271,9 @@ endif()
 # never touch SDL_GL_* themselves. In-tree helper only: it links the
 # umbrella `gpu` target.
 if(GPU_BUILD_SDL)
-    find_package(SDL2 REQUIRED)
+    if(NOT TARGET SDL2::SDL2)
+        find_package(SDL2 REQUIRED)
+    endif()
     add_library(gpu_sdl src/GPUSDLWindow.cpp)
     target_compile_features(gpu_sdl PUBLIC cxx_std_14)
     target_include_directories(gpu_sdl
