@@ -198,6 +198,8 @@ namespace gpu
     {
       GPUCapabilities capabilities;
       capabilities.textureArrays = true;
+      capabilities.anisotropicFiltering = true;
+      capabilities.maxAnisotropy = 16.0f;
       capabilities.maxColorAttachments = 8;
       capabilities.maxTextureDimension2D = 16384;
       capabilities.maxTextureDimension3D = 2048;

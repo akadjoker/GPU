@@ -166,6 +166,7 @@ struct CompressedFormatInfo {
 };
 
 constexpr GLenum kTextureMaxAnisotropyExt = 0x84FE;
+constexpr GLenum kMaxTextureMaxAnisotropyExt = 0x84FF;
 constexpr GLenum kCompressedRGBAS3TCDXT1Ext = 0x83F1;
 constexpr GLenum kCompressedSRGBAlphaS3TCDXT1Ext = 0x8C4D;
 constexpr GLenum kCompressedRGBAS3TCDXT5Ext = 0x83F3;

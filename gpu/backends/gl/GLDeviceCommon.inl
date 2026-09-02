@@ -1503,12 +1503,15 @@ SamplerHandle GPU_GL_DEVICE_CLASS::createSampler(const SamplerDesc &desc) {
   } else {
     glSamplerParameteri(object.id, GL_TEXTURE_COMPARE_MODE, GL_NONE);
   }
-  if (mAnisotropicFiltering)
+  if (mAnisotropicFiltering) {
+    const float anisotropy =
+        std::min(desc.maxAnisotropy, mCapabilities.maxAnisotropy);
 #if GPU_GL_DESKTOP
-    glSamplerParameterf(object.id, GL_TEXTURE_MAX_ANISOTROPY, desc.maxAnisotropy);
+    glSamplerParameterf(object.id, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
 #else
-    glSamplerParameterf(object.id, kTextureMaxAnisotropyExt, desc.maxAnisotropy);
+    glSamplerParameterf(object.id, kTextureMaxAnisotropyExt, anisotropy);
 #endif
+  }
   const GLenum samplerError = glGetError();
   if (samplerError != GL_NO_ERROR) {
     glDeleteSamplers(1, &object.id);
@@ -2937,6 +2940,19 @@ bool GPU_GL_DEVICE_CLASS::initialize() {
   mDebugLabels = GLAD_GL_VERSION_4_3 || GLAD_GL_KHR_debug;
 #else
   mAnisotropicFiltering = hasExtension("GL_EXT_texture_filter_anisotropic");
+#endif
+  mCapabilities.anisotropicFiltering = mAnisotropicFiltering;
+  mCapabilities.maxAnisotropy = 1.0f;
+  if (mAnisotropicFiltering) {
+    GLfloat maxAnisotropy = 1.0f;
+#if GPU_GL_DESKTOP
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+#else
+    glGetFloatv(kMaxTextureMaxAnisotropyExt, &maxAnisotropy);
+#endif
+    mCapabilities.maxAnisotropy = std::max(maxAnisotropy, 1.0f);
+  }
+#if !GPU_GL_DESKTOP
 #if GPU_GLES_HAS_KHR_DEBUG
   mDebugLabels = mHasES32 || hasExtension("GL_KHR_debug");
 #else

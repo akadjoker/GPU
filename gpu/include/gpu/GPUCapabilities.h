@@ -43,6 +43,11 @@ namespace gpu
     bool textureCompressionBC7 = false;
     /** @brief ETC2 texture compression is available. */
     bool textureCompressionETC2 = false;
+    /** @brief Anisotropic sampler filtering is available. */
+    bool anisotropicFiltering = false;
+    /** @brief Largest SamplerDesc::maxAnisotropy the device accepts; 1 when
+     * anisotropic filtering is unavailable. Larger requests are clamped. */
+    float maxAnisotropy = 1.0f;
     /** @brief ASTC texture compression is available. */
     bool textureCompressionASTC = false;
     /** @brief Sampler border colors are available. */

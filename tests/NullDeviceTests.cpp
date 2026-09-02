@@ -169,6 +169,14 @@ void testPortableCommands() {
   textureDesc.height = 4;
   const gpu::TextureHandle texture = device->createTexture(textureDesc);
   const gpu::SamplerHandle sampler = device->createSampler({});
+  assert(device->capabilities().anisotropicFiltering);
+  assert(device->capabilities().maxAnisotropy >= 1.0f);
+  gpu::SamplerDesc anisotropicDesc;
+  anisotropicDesc.maxAnisotropy = device->capabilities().maxAnisotropy * 4.0f;
+  const gpu::SamplerHandle anisotropic = device->createSampler(anisotropicDesc);
+  assert(anisotropic);
+  assert(device->pendingErrorCount() == 0);
+  device->destroy(anisotropic);
 
   const char shader[] = "void main() {}";
   gpu::PipelineDesc pipelineDesc;
