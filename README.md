@@ -32,6 +32,75 @@ tests/      Unit, integration, and backend tests
 docs/       Project and API documentation
 ```
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Apps["Applications"]
+        DEMOS["demos/ - SDL samples"]
+        TESTS["tests/ - unit and backend tests"]
+    end
+
+    subgraph API["gpu/include/gpu - public API"]
+        GPUH["GPU.h<br/>Device interface"]
+        BACKEND["GPUBackend.h<br/>createDevice / Backend enum"]
+        TYPES["GPUDescriptors.h / GPUTypes.h<br/>GPUHandles.h / GPUCapabilities.h"]
+        SURF["GPUSurface.h"]
+        SDLW["GPUSDLWindow.h"]
+        DIAG["GPUDiagnostics.h / GPUProfiler.h<br/>GPUError.h"]
+    end
+
+    subgraph Core["gpu/src - shared implementation"]
+        DISPATCH["GPUBackend.cpp<br/>dispatch by Backend"]
+        SCORE["GPUDiagnostics.cpp / GPUError.cpp<br/>GPUProfiler.cpp"]
+        SWIN["GPUSDLWindow.cpp<br/>(gpu_sdl helper)"]
+    end
+
+    subgraph Backends["gpu/backends - Device implementations"]
+        NULLB["null/NullDevice<br/>no-op, for tests"]
+        GLB["gl/PortableGLDevice<br/>desktop OpenGL"]
+        GLESB["gles/GLESDevice<br/>OpenGL ES / WebGL"]
+        COMMON["gl/GLDeviceCommon.inl<br/>methods shared by GL and GLES"]
+        VKB["vulkan/VulkanDevice<br/>+ vendored SPIRV-Reflect"]
+        POOL["ResourcePool.h<br/>handle lifetime management"]
+    end
+
+    subgraph Native["Native APIs"]
+        OGL["OpenGL"]
+        OGLES["OpenGL ES"]
+        VKAPI["Vulkan"]
+    end
+
+    DEMOS -->|uses| SDLW
+    DEMOS -->|creates and draws| GPUH
+    TESTS -->|exercises| GPUH
+    GPUH --> BACKEND
+    BACKEND --> DISPATCH
+    DISPATCH -->|Backend::Null| NULLB
+    DISPATCH -->|Backend::OpenGL| GLB
+    DISPATCH -->|Backend::OpenGLES| GLESB
+    DISPATCH -->|Backend::Vulkan| VKB
+    GLB --> COMMON
+    GLESB --> COMMON
+    GLB --> OGL
+    GLESB --> OGLES
+    VKB --> VKAPI
+    NULLB -.-> POOL
+    GLB -.-> POOL
+    GLESB -.-> POOL
+    VKB -.-> POOL
+```
+
+- `gpu::createDevice` (in `GPUBackend.cpp`) picks the concrete backend from
+  `DeviceDesc::backend` and returns the matching `Device` implementation.
+- The desktop OpenGL and OpenGL ES backends share the identical parts of the
+  `Device` implementation through `gl/GLDeviceCommon.inl`, included once per
+  class.
+- The Vulkan backend vendors SPIRV-Reflect for pipeline reflection and
+  computes it once at pipeline-creation time.
+- Applications (`demos/`, `tests/`) only talk to the public API; the optional
+  `gpu_sdl` helper owns the SDL window and presentation surface.
+
 ## Requirements
 
 - CMake 3.21 or newer
