@@ -394,7 +394,9 @@ if(BUILD_TESTING)
     gpu_enable_assertions(gpu_resource_pool_tests)
 
     if(GPU_BUILD_OPENGL AND GPU_BUILD_OPENGL_TESTS)
-        find_package(SDL2 REQUIRED)
+        if(NOT TARGET SDL2::SDL2)
+            find_package(SDL2 REQUIRED)
+        endif()
         add_executable(gpu_opengl_tests
             ${GPU_TESTS_DIR}/OpenGLDeviceTests.cpp
             ${GPU_TESTS_DIR}/RenderPathProbe.cpp
@@ -410,7 +412,9 @@ if(BUILD_TESTING)
     endif()
 
     if(GPU_BUILD_OPENGLES AND GPU_BUILD_OPENGLES_TESTS)
-        find_package(SDL2 REQUIRED)
+        if(NOT TARGET SDL2::SDL2)
+            find_package(SDL2 REQUIRED)
+        endif()
         add_executable(gpu_gles_tests
             ${GPU_TESTS_DIR}/GLESDeviceTests.cpp
             ${GPU_TESTS_DIR}/RenderPathProbe.cpp
@@ -426,7 +430,9 @@ if(BUILD_TESTING)
 
     if(GPU_BUILD_OPENGL AND GPU_BUILD_OPENGL_TESTS AND
        GPU_BUILD_OPENGLES AND GPU_BUILD_OPENGLES_TESTS)
-        find_package(SDL2 REQUIRED)
+        if(NOT TARGET SDL2::SDL2)
+            find_package(SDL2 REQUIRED)
+        endif()
         add_executable(gpu_gl_vs_gles_tests
             ${GPU_TESTS_DIR}/GLvsGLESImageTests.cpp
             ${GPU_DEMOS_DIR}/SDLGLSurface.cpp
@@ -445,7 +451,9 @@ if(GPU_BUILD_DEMOS)
     if(NOT GPU_BUILD_OPENGL AND NOT GPU_BUILD_OPENGLES AND NOT GPU_BUILD_VULKAN)
         message(FATAL_ERROR "GPU_BUILD_DEMOS requires GPU_BUILD_OPENGL, GPU_BUILD_OPENGLES, or GPU_BUILD_VULKAN")
     endif()
-    find_package(SDL2 REQUIRED)
+    if(NOT TARGET SDL2::SDL2)
+        find_package(SDL2 REQUIRED)
+    endif()
 
     set(GPU_DEMO_SURFACES ${GPU_DEMOS_DIR}/ShadowDemoCommon.cpp)
     if(GPU_BUILD_OPENGL)
